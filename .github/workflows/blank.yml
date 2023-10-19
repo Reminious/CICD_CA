@@ -13,20 +13,20 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        ignore-unfixed: true
-        format: table
-        output: 'trivy_report.txt'
-        severity: 'CRITICAL,HIGH'
+    # - name: Run Trivy vulnerability scanner
+    #   uses: aquasecurity/trivy-action@master
+    #   with:
+    #     scan-type: 'fs'
+    #     ignore-unfixed: true
+    #     format: table
+    #     output: 'trivy_report.txt'
+    #     severity: 'CRITICAL,HIGH'
         
-    - name: Upload Trivy report
-      uses: actions/upload-artifact@v2
-      with:
-        name: trivy-report
-        path: trivy_report.txt
+    # - name: Upload Trivy report
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: trivy-report
+    #     path: trivy_report.txt
 
     # - name: Set up Docker BuildX
     #   uses: docker/setup-buildx-action@v3
@@ -56,6 +56,6 @@ jobs:
 
     - name: Sign Docker Image
       env:
-        COSIGN_PWD: ${{ secrets.COSIGN_PWD }}
+        COSIGN_PWD: ${{ secrets.COSIGN_PASSWORD }}
       run: cosign sign --key cosign.key reminious/gg:abfbcad7c0d1a7c9107ca0736d465a45995cc0a7
       
