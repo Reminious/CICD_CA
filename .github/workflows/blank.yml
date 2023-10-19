@@ -57,5 +57,5 @@ jobs:
     - name: Sign Docker Image
       env:
         COSIGN_PWD: ${{ secrets.COSIGN_PWD }}
-      run: cosign sign --key reminious/gg:abfbcad7c0d1a7c9107ca0736d465a45995cc0a7
+      run: cosign sign --key cosign.key reminious/gg:abfbcad7c0d1a7c9107ca0736d465a45995cc0a7
       
