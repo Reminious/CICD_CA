@@ -28,24 +28,31 @@ jobs:
         name: trivy-report
         path: trivy_report.txt
 
-    - name: Vulnarability check success?
+    - name: Vulnerabilities Check Success?
       id: check
-      run: echo ::set-env name=build_image::$(grep -w " 0 (" trivy_report.txt)
+      run: |
+        if grep -w ' 0 (' trivy_report.txt; then
+          echo "Success!"
+          echo "build_image=true" >> $GITHUB_ENV
+        else
+          echo "Fail!"
+          echo "build_image=false" >> $GITHUB_ENV
+        fi
       shell: bash
 
     - name: Set up Docker BuildX
-      if: env.build_image == 'true'
+      if: steps.check.outputs.build_image == 'true'
       uses: docker/setup-buildx-action@v3
 
     - name: Login to DockerHub
-      if: env.build_image == 'true'
+      if: steps.check.outputs.build_image == 'true'
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PWD }}
 
     - name: Docker Build and Push
-      if: env.build_image == 'true'
+      if: steps.check.outputs.build_image == 'true'
       uses: docker/build-push-action@v5
       with:
          push: true
@@ -54,18 +61,18 @@ jobs:
 
          
     - name: Install Cosign Tool
-      if: env.build_image == 'true'
+      if: steps.check.outputs.build_image == 'true'
       uses: sigstore/cosign-installer@v3.1.2
 
     - name: Write Signing Key
-      if: env.build_image == 'true'
+      if: steps.check.outputs.build_image == 'true'
       run: 'echo "$KEY" > cosign.key'
       shell: bash
       env:
         KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         
     - name: Sign Docker Image
-      if: env.build_image == '0'
+      if: steps.check.outputs.build_image == 'true'
       env:
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
       run: 
