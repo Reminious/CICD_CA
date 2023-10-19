@@ -30,7 +30,7 @@ jobs:
 
     - name: Vulnarability check success?
       id: check
-      run: echo ::set-output name=build_image::$(grep format('Total ', ':0') trivy-report.txt | wc -l)
+      run: echo ::set-output name=build_image::$(grep -w " 0 (" trivy-report.txt | wc -l)
       shell: bash
 
     - name: Set up Docker BuildX
