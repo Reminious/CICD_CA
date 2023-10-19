@@ -19,7 +19,7 @@ jobs:
         scan-type: 'fs'
         ignore-unfixed: true
         format: table
-        output: 'trivy-report.txt'
+        output: 'trivy_report.txt'
         severity: 'CRITICAL,HIGH'
         
     - name: Upload Trivy report
