@@ -52,5 +52,16 @@ jobs:
       run: |
         cosign generate-key-pair
       shell: bash
+      
+    - name: Upload key
+      uses: actions/upload-artifact@v2
+      with:
+        name: key-pri
+        path: cosign.key
 
+    - name: Upload key
+      uses: actions/upload-artifact@v2
+      with:
+        name: key-pub
+        path: cosign.pub
       
