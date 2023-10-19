@@ -1,9 +1,9 @@
-name: Vulnerability Scanning and Docker Build
+name: Vulnerability Scanning
 
 on:
   push:
     branches:
-      - 'v[0-9]+.[0-9]+' # Matches branch names like v1.0, v15.3, v7.09
+      - main # Change this to your main branch
 
 jobs:
   scan-vulnerabilities:
@@ -22,42 +22,12 @@ jobs:
       shell: bash
 
     - name: Scan codebase for vulnerabilities
-      id: vulnerabilities
       run: |
-        trivy filesystem --no-progress --severity HIGH,CRITICAL --format table -o trivy_report.txt .
-        if grep -q 'Total: 0' trivy_report.txt; then
-          echo "No vulnerabilities found. Proceeding to Docker build..."
-          echo "Dockerfile contents:"
-          cat Dockerfile # You can specify the actual path to your Dockerfile
-          echo "::set-output name=build_image::true"
-        else
-          echo "Vulnerabilities found. Skipping Docker build."
-          echo "::set-output name=build_image::false"
-        fi
+        trivy filesystem --no-progress --severity HIGH,CRITICAL --format json -o trivy_report.json .
       shell: bash
-
-    - name: Set Docker image tag
-      id: set-docker-tag
-      if: steps.vulnerabilities.outputs.build_image == 'true'
-      run: echo "fred/go-fortune:${GITHUB_SHA}" >> tag.txt
-
-    - name: Docker Build and Push
-      id: docker-build
-      if: steps.vulnerabilities.outputs.build_image == 'true'
-      run: |
-        docker build -t $(cat tag.txt) .
-        echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker push $(cat tag.txt)
-      env:
-        DOCKER_CLI_ASK=0
 
     - name: Upload Trivy report
       uses: actions/upload-artifact@v2
       with:
         name: trivy-report
-        path: trivy_report.txt
-
-    - name: Cleanup
-      run: |
-        rm tag.txt
-      if: steps.vulnerabilities.outputs.build_image == 'true'
+        path: trivy_report.json
