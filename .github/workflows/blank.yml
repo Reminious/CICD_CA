@@ -44,5 +44,5 @@ jobs:
       uses: docker/build-push-action@v5
       with:
          push: true
-         tags: reminious/gg:$(cat tag.txt)
+         tags: reminious/gg:1.0.0
          file: ./Dockerfile
