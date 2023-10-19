@@ -37,6 +37,7 @@ jobs:
         else
           echo "Fail"
           echo "::set-output name=build_image::false"
+      shell: bash
 
     - name: Set up Docker BuildX
       if: steps.check.outputs.build_image == 'true'
