@@ -57,5 +57,6 @@ jobs:
     - name: Sign Docker Image
       env:
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-      run: cosign sign --key cosign.key reminious/gg:${{ github.sha }}
+      run: 
+        echo 'y' | cosign sign --key cosign.key reminious/gg:${{ github.sha }}
       
