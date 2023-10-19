@@ -48,20 +48,14 @@ jobs:
     - name: Install Cosign Tool
       uses: sigstore/cosign-installer@v3.1.2
 
-    - name: Sign Docker Image
-      run: |
-        cosign generate-key-pair
+    - name: Write Signing Key
+      run: 'echo "$KEY" > cosign.key'
       shell: bash
-      
-    - name: Upload key
-      uses: actions/upload-artifact@v2
-      with:
-        name: key-pri
-        path: cosign.key
+      env:
+        KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
 
-    - name: Upload key
-      uses: actions/upload-artifact@v2
-      with:
-        name: key-pub
-        path: cosign.pub
+    - name: Sign Docker Image
+      env:
+        COSIGN_PWD: ${{ secrets.COSIGN_PWD }}
+      run: cosign sign --key reminious/gg:abfbcad7c0d1a7c9107ca0736d465a45995cc0a7
       
