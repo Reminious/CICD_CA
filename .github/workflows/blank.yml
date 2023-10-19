@@ -31,7 +31,7 @@ jobs:
     - name: Vulnarability check success?
       id: check
       run: |
-        if grep -q 'Total: 0' trivy_report.txt; then
+        if grep -w "Total: 0" trivy_report.txt; then
           echo "Success"
           echo "::set-output name=build_image::true"
         else
