@@ -28,9 +28,6 @@ jobs:
         name: trivy-report
         path: trivy_report.txt
 
-    - name: Set Image Tag
-      run: echo "fred/go-fortune:${GITHUB_SHA}" >> tag.txt
-
     - name: Set up Docker BuildX
       uses: docker/setup-buildx-action@v3
 
@@ -44,5 +41,5 @@ jobs:
       uses: docker/build-push-action@v5
       with:
          push: true
-         tags: reminious/gg:1.0.0
+         tags: reminious/gg:${{ github.sha }}
          file: ./Dockerfile
