@@ -7,6 +7,7 @@ on:
 
 jobs:
   scan-vulnerabilities:
+    if: github.event.head_commit.message !startsWith '#NORUN'
     runs-on: ubuntu-latest
 
     steps:
@@ -61,7 +62,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
          push: true
-         tags: reminious/gg:${{ github.sha }}
+         tags: reminious/cicd_ca:${{ github.sha }}
          file: ./Dockerfile
          
     - name: Install Cosign Tool
@@ -80,7 +81,7 @@ jobs:
       env:
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
       run: 
-        echo 'y' | cosign sign --key cosign.key reminious/gg:${{ github.sha }}
+        echo 'y' | cosign sign --key cosign.key reminious/cicd_ca:${{ github.sha }}
 
     - name: Send Slack Message
       if: env.build_image == 'true'
@@ -92,25 +93,25 @@ jobs:
         SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
       #Success ends
 
-      #Fail starts
-    - name: Send Slack Message
-      if: env.build_image == 'false'
-      uses: slackapi/slack-github-action@v1.24.0
-      with:
-        payload-file-path: "./FailContent.json"
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
+    #   #Fail starts
+    # - name: Send Slack Message
+    #   if: env.build_image == 'false'
+    #   uses: slackapi/slack-github-action@v1.24.0
+    #   with:
+    #     payload-file-path: "./FailContent.json"
+    #   env:
+    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    #     SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
     
-    - name: Upload Report File
-      if: env.build_image == 'false'
-      uses: MeilCli/slack-upload-file@v3
-      with:
-        slack_token: ${{ secrets.SLACK_TOKEN }}
-        channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
-        file_type: 'text'
-        file_path: trivy_report.txt
-        title: 'trivy_report'
-      #Fail ends
+    # - name: Upload Report File
+    #   if: env.build_image == 'false'
+    #   uses: MeilCli/slack-upload-file@v3
+    #   with:
+    #     slack_token: ${{ secrets.SLACK_TOKEN }}
+    #     channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
+    #     file_type: 'text'
+    #     file_path: trivy_report.txt
+    #     title: 'trivy_report'
+    #   #Fail ends
       
       

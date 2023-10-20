@@ -10,7 +10,7 @@
 	],
 	"attachments": [
 		{
-			"color" : "#C31F6A",
+			"color" : "#63B881",
 			"blocks": [
 				{
 					"type": "rich_text",
@@ -71,6 +71,92 @@
 						{
 							"type": "mrkdwn",
 							"text": "*Image Build and Signed*\n"
+						}
+					]
+				},
+				{
+					"type": "rich_text",
+					"elements": [
+						{
+							"type": "rich_text_section",
+							"elements": [
+								{
+									"type": "text",
+									"text": "Name:",
+									"style": {
+										"bold": true
+									}
+								},
+								{
+									"type": "text",
+									"text": " WANG YUCHEN\n"
+								},
+								{
+									"type": "text",
+									"text": "Metricultion:",
+									"style": {
+										"bold": true
+									}
+								},
+								{
+									"type": "text",
+									"text": " A0287256R\n"
+								},
+								{
+									"type": "text",
+									"text": "Email:",
+									"style": {
+										"bold": true
+									}
+								},
+								{
+									"type": "text",
+									"text": " "
+								},
+								{
+									"type": "link",
+									"url": "mailto:e1285202@u.nus.edu",
+									"text": "e1285202@u.nus.edu"
+								},
+								{
+									"type": "text",
+									"text": "\n"
+								},
+								{
+									"type": "text",
+									"text": "Git:",
+									"style": {
+										"bold": true
+									}
+								},
+								{
+									"type": "text",
+									"text": " "
+								},
+								{
+									"type": "link",
+									"url": "https://github.com/Reminious/CICD_CA"
+								},
+								{
+									"type": "text",
+									"text": "\n"
+								},
+								{
+									"type": "text",
+									"text": "Image:",
+									"style": {
+										"bold": true
+									}
+								},
+								{
+									"type": "text",
+									"text": " "
+								},
+								{
+									"type": "link",
+									"url": "https://hub.docker.com/repository/docker/reminious/cicd_ca"
+								}
+							]
 						}
 					]
 				}
