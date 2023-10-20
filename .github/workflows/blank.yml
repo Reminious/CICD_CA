@@ -10,22 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check Command Line
-      id: CMDCheck
-      run: |
-        COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-        if [[ $COMMIT_MESSAGE == "#NORUN"* ]]; then
-          exit 0
-        fi
-      shell: bash
-
-
     - name: Check out code
-      if: steps.CMDCheck.outputs.run == 'true'
       uses: actions/checkout@v2
 
     - name: Run Trivy vulnerability scanner
-      if: steps.CMDCheck.outputs.run == 'true'
       uses: aquasecurity/trivy-action@master
       with:
         scan-type: 'fs'
@@ -35,7 +23,6 @@ jobs:
         severity: 'CRITICAL'
 
     - name: Vulnerabilities Check Success?
-      if: steps.CMDCheck.outputs.run == 'true'
       id: check
       run: |
         if grep -w ' 0 (' trivy_report.txt; then
