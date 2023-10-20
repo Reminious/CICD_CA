@@ -93,25 +93,25 @@ jobs:
         SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
       #Success ends
 
-    #   #Fail starts
-    # - name: Send Slack Message
-    #   if: env.build_image == 'false'
-    #   uses: slackapi/slack-github-action@v1.24.0
-    #   with:
-    #     payload-file-path: "./FailContent.json"
-    #   env:
-    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-    #     SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
+      #Fail starts
+    - name: Send Slack Message
+      if: env.build_image == 'false'
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        payload-file-path: "./FailContent.json"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
     
-    # - name: Upload Report File
-    #   if: env.build_image == 'false'
-    #   uses: MeilCli/slack-upload-file@v3
-    #   with:
-    #     slack_token: ${{ secrets.SLACK_TOKEN }}
-    #     channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
-    #     file_type: 'text'
-    #     file_path: trivy_report.txt
-    #     title: 'trivy_report'
-    #   #Fail ends
+    - name: Upload Report File
+      if: env.build_image == 'false'
+      uses: MeilCli/slack-upload-file@v3
+      with:
+        slack_token: ${{ secrets.SLACK_TOKEN }}
+        channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
+        file_type: 'text'
+        file_path: trivy_report.txt
+        title: 'trivy_report'
+      #Fail ends
       
       
