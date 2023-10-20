@@ -7,7 +7,7 @@ on:
 
 jobs:
   scan-vulnerabilities:
-    if: startsWith(github.event.head_commit.message, '#NORUN') == 'false'
+    if: startsWith(github.event.head_commit.message, '#NORUN') == 'true'
     runs-on: ubuntu-latest
 
     steps:
