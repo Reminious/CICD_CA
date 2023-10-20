@@ -38,11 +38,11 @@ jobs:
       run:
         echo "COMMIT_SHORT=`echo ${GITHUB_SHA} | cut -c 1-6`" >> $GITHUB_ENV
 
-    - name: Upload Trivy report
-      uses: actions/upload-artifact@v2
-      with:
-        name: trivy-report
-        path: trivy_report.txt
+    # - name: Upload Trivy report
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: trivy-report
+    #     path: trivy_report.txt
 
       #Success starts
     - name: Set up Docker BuildX
@@ -109,6 +109,7 @@ jobs:
         slack_token: ${{ secrets.SLACK_TOKEN }}
         channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
         file_type: 'text'
+        file_path: trivy_report.txt
         title: 'trivy_report'
       #Fail ends
       
