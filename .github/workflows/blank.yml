@@ -25,12 +25,12 @@ jobs:
     - name: Vulnerabilities Check Success?
       id: check
       run: |
-        if grep -w ' 0 (' trivy_report.txt; then
-          echo "Success!"
-          echo "build_image=true" >> $GITHUB_ENV
-        else
+        if grep -w 'Total' trivy_report.txt; then
           echo "Fail!"
           echo "build_image=false" >> $GITHUB_ENV
+        else
+          echo "Success!"
+          echo "build_image=true" >> $GITHUB_ENV
         fi
       shell: bash
 
@@ -40,74 +40,74 @@ jobs:
         name: trivy-report
         path: trivy_report.txt
 
-    #   #Success starts
-    # - name: Set up Docker BuildX
-    #   if: env.build_image == 'true'
-    #   uses: docker/setup-buildx-action@v3
+      #Success starts
+    - name: Set up Docker BuildX
+      if: env.build_image == 'true'
+      uses: docker/setup-buildx-action@v3
 
-    # - name: Login to DockerHub
-    #   if: env.build_image == 'true'
-    #   uses: docker/login-action@v3
-    #   with:
-    #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-    #     password: ${{ secrets.DOCKERHUB_PWD }}
+    - name: Login to DockerHub
+      if: env.build_image == 'true'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PWD }}
 
-    # - name: Docker Build and Push
-    #   if: env.build_image == 'true'
-    #   uses: docker/build-push-action@v5
-    #   with:
-    #      push: true
-    #      tags: reminious/gg:${{ github.sha }}
-    #      file: ./Dockerfile
+    - name: Docker Build and Push
+      if: env.build_image == 'true'
+      uses: docker/build-push-action@v5
+      with:
+         push: true
+         tags: reminious/gg:${{ github.sha }}
+         file: ./Dockerfile
          
-    # - name: Install Cosign Tool
-    #   if: env.build_image == 'true'
-    #   uses: sigstore/cosign-installer@v3.1.2
+    - name: Install Cosign Tool
+      if: env.build_image == 'true'
+      uses: sigstore/cosign-installer@v3.1.2
 
-    # - name: Write Signing Key
-    #   if: env.build_image == 'true'
-    #   run: 'echo "$KEY" > cosign.key'
-    #   shell: bash
-    #   env:
-    #     KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+    - name: Write Signing Key
+      if: env.build_image == 'true'
+      run: 'echo "$KEY" > cosign.key'
+      shell: bash
+      env:
+        KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         
-    # - name: Sign Docker Image
-    #   if: env.build_image == 'true'
-    #   env:
-    #     COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-    #   run: 
-    #     echo 'y' | cosign sign --key cosign.key reminious/gg:${{ github.sha }}
+    - name: Sign Docker Image
+      if: env.build_image == 'true'
+      env:
+        COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+      run: 
+        echo 'y' | cosign sign --key cosign.key reminious/gg:${{ github.sha }}
 
-    # - name: Send Slack Message
-    #   if: env.build_image == 'true'
-    #   uses: slackapi/slack-github-action@v1.24.0
-    #   with:
-    #     payload-file-path: "./SuccContent.json"
-    #   env:
-    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-    #     SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
-    #   #Success ends
+    - name: Send Slack Message
+      if: env.build_image == 'true'
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        payload-file-path: "./SuccContent.json"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
+      #Success ends
 
-    #   #Fail starts
-    # - name: Send Slack Message
-    #   if: env.build_image == 'false'
-    #   uses: slackapi/slack-github-action@v1.24.0
-    #   with:
-    #     payload-file-path: "./FailContent.json"
-    #   env:
-    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-    #     SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
+      #Fail starts
+    - name: Send Slack Message
+      if: env.build_image == 'false'
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        payload-file-path: "./FailContent.json"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
     
-    # - name: Upload Report File
-    #   if: env.build_image == 'false'
-    #   uses: MeilCli/slack-upload-file@v3
-    #   with:
-    #     slack_token: ${{ secrets.SLACK_TOKEN }}
-    #     channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
-    #     content: 'file content'
-    #     file_type: 'text'
-    #     file_name: 'trivy_report.txt'
-    #     title: 'trivy_report'
-    #   #Fail ends
+    - name: Upload Report File
+      if: env.build_image == 'false'
+      uses: MeilCli/slack-upload-file@v3
+      with:
+        slack_token: ${{ secrets.SLACK_TOKEN }}
+        channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
+        content: 'file content'
+        file_type: 'text'
+        file_name: 'trivy_report.txt'
+        title: 'trivy_report'
+      #Fail ends
       
       
