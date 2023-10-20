@@ -3,17 +3,29 @@ name: Vulnerability Scanning
 on:
   push:
     branches:
-      - main # Change this to your main branch
+      - 'v[0-9]+.[0-9]+'
 
 jobs:
   scan-vulnerabilities:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Check Command Line
+      id: CMDCheck
+      run: |
+        COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+        if [[ $COMMIT_MESSAGE == "#NORUN"* ]]; then
+          exit 0
+        fi
+      shell: bash
+
+
     - name: Check out code
+      if: steps.CMDCheck.outputs.run == 'true'
       uses: actions/checkout@v2
 
     - name: Run Trivy vulnerability scanner
+      if: steps.CMDCheck.outputs.run == 'true'
       uses: aquasecurity/trivy-action@master
       with:
         scan-type: 'fs'
@@ -23,12 +35,14 @@ jobs:
         severity: 'HIGH'
         
     - name: Upload Trivy report
+      if: steps.CMDCheck.outputs.run == 'true'
       uses: actions/upload-artifact@v2
       with:
         name: trivy-report
         path: trivy_report.txt
 
     - name: Vulnerabilities Check Success?
+      if: steps.CMDCheck.outputs.run == 'true'
       id: check
       run: |
         if grep -w ' 0 (' trivy_report.txt; then
@@ -40,8 +54,9 @@ jobs:
         fi
       shell: bash
 
+      #Success starts
     - name: Set up Docker BuildX
-      if: steps.check.outputs.build_image == 'true'
+      if: steps.check.outputs.build_image == 'true' && steps.CMDCheck.outputs.run == 'true'
       uses: docker/setup-buildx-action@v3
 
     - name: Login to DockerHub
@@ -52,29 +67,61 @@ jobs:
         password: ${{ secrets.DOCKERHUB_PWD }}
 
     - name: Docker Build and Push
-      if: steps.check.outputs.build_image == 'true'
+      if: steps.check.outputs.build_image == 'true' && steps.CMDCheck.outputs.run == 'true'
       uses: docker/build-push-action@v5
       with:
          push: true
          tags: reminious/gg:${{ github.sha }}
          file: ./Dockerfile
-
          
     - name: Install Cosign Tool
-      if: steps.check.outputs.build_image == 'true'
+      if: steps.check.outputs.build_image == 'true' && steps.CMDCheck.outputs.run == 'true'
       uses: sigstore/cosign-installer@v3.1.2
 
     - name: Write Signing Key
-      if: steps.check.outputs.build_image == 'true'
+      if: steps.check.outputs.build_image == 'true' && steps.CMDCheck.outputs.run == 'true'
       run: 'echo "$KEY" > cosign.key'
       shell: bash
       env:
         KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         
     - name: Sign Docker Image
-      if: steps.check.outputs.build_image == 'true'
+      if: steps.check.outputs.build_image == 'true' && steps.CMDCheck.outputs.run == 'true'
       env:
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
       run: 
         echo 'y' | cosign sign --key cosign.key reminious/gg:${{ github.sha }}
+
+    - name: Send Slack Message
+      if: steps.check.outputs.build_image == 'true' && steps.CMDCheck.outputs.run == 'true'
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        payload-file-path: "./SuccContent.json"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
+      #Success ends
+
+      #Fail starts
+    - name: Send Slack Message
+      if: steps.check.outputs.build_image == 'false' && steps.CMDCheck.outputs.run == 'true'
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        payload-file-path: "./FailContent.json"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOME_WEBHOOK
+    
+    - name: Upload Report File
+      if: steps.check.outputs.build_image == 'false' && steps.CMDCheck.outputs.run == 'true'
+      uses: MeilCli/slack-upload-file@v3
+      with:
+        slack_token: ${{ secrets.SLACK_TOKEN }}
+        channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
+        content: 'file content'
+        file_type: 'text'
+        file_name: 'trivy_report.txt'
+        title: 'trivy_report'
+      #Fail ends
+      
       
