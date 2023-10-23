@@ -21,7 +21,7 @@ jobs:
         ignore-unfixed: true
         format: table
         output: 'trivy_report.txt'
-        severity: 'CRITICAL'
+        severity: 'HIGH'
 
     - name: Vulnerabilities Check Success?
       id: check
